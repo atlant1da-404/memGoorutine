@@ -18,10 +18,12 @@ func NewServer() *Server {
 
 func (s Server) Run() error {
 
+	h := handler.NewHandler()
+
 	mux := http.NewServeMux()
-	mux.HandleFunc(utils.CreateUrl, handler.Create)
-	mux.HandleFunc(utils.ListUrl, handler.List)
-	mux.HandleFunc(utils.DeleteUrl, handler.Delete)
-	mux.HandleFunc(utils.UpdateUrl, handler.Update)
+	mux.HandleFunc(utils.CreateUrl, h.Create)
+	mux.HandleFunc(utils.ListUrl, h.List)
+	mux.HandleFunc(utils.DeleteUrl, h.Delete)
+	mux.HandleFunc(utils.UpdateUrl, h.Update)
 	return http.ListenAndServe(s.addr, mux)
 }

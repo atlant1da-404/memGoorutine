@@ -65,11 +65,12 @@ func TestStarter(t *testing.T) {
 	wg.Add(1)
 
 	model := testCaseOne
+	s := NewService(model)
 
 	ch := make(chan error, sizeOfChan)
 
 	go func() {
-		ch <- Add(model)
+		ch <- s.Add()
 	}()
 
 	if <-ch != nil {
@@ -88,9 +89,10 @@ func TestStop(t *testing.T) {
 	wg.Add(2)
 
 	model := testCaseTwo
+	s := NewService(model)
 
-	go Add(model)
-	go Stop(model)
+	go s.Add()
+	go s.Stop()
 
 	if model.Position == memStorageFull {
 		t.Errorf(stopNotCorrect)
@@ -103,17 +105,19 @@ func TestRepeat(t *testing.T) {
 	wg.Add(2)
 
 	model := testCaseThree
+	s := NewService(model)
 
 	chErr := make(chan error, sizeOfChan)
-	go Add(model)
+	go s.Add()
 
 	time.Sleep(3 * time.Second)
 
 	go func() {
-		chErr <- Add(model)
+		chErr <- s.Add()
 	}()
 
 	err := <-chErr
+	close(chErr)
 
 	if err == nil {
 		t.Errorf(repeatNotCorrect)
@@ -127,8 +131,9 @@ func TestChange(t *testing.T) {
 	wg.Add(1)
 
 	model := testCaseFour
+	s := NewService(model)
 
-	go Add(model)
+	go s.Add()
 	time.Sleep(3 * time.Second)
 
 	if storage.MemStorage[model.RequestId].Position == zeroPosition {
@@ -143,11 +148,12 @@ func TestStopAfter6(t *testing.T) {
 	wg.Add(1)
 
 	model := testCaseFive
+	s := NewService(model)
 
 	err := make(chan error)
 
 	go func() {
-		err <- Stop(model)
+		err <- s.Stop()
 	}()
 
 	time.Sleep(2 * time.Second)
@@ -170,10 +176,12 @@ func TestStopTo6(t *testing.T) {
 
 	storage.MemStorage[model.RequestId] = model
 
+	s := NewService(model)
+
 	err := make(chan error)
 
 	go func() {
-		err <- Stop(model)
+		err <- s.Stop()
 	}()
 
 	time.Sleep(3 * time.Second)
