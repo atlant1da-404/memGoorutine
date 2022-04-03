@@ -1,6 +1,8 @@
 package server
 
 import (
+	"atlant1da-404/server/handler"
+	"atlant1da-404/server/utils"
 	"net/http"
 )
 
@@ -8,22 +10,18 @@ type Server struct {
 	addr string
 }
 
-const (
-	hardcode  = "localhost:8000"
-	createUrl = "/"
-	listUrl   = "/l"
-)
-
 func NewServer() *Server {
 	return &Server{
-		addr: hardcode,
+		addr: utils.Hardcode,
 	}
 }
 
 func (s Server) Run() error {
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(createUrl, handler)
-	mux.HandleFunc(listUrl, list)
+	mux.HandleFunc(utils.CreateUrl, handler.Create)
+	mux.HandleFunc(utils.ListUrl, handler.List)
+	mux.HandleFunc(utils.DeleteUrl, handler.Delete)
+	mux.HandleFunc(utils.UpdateUrl, handler.Update)
 	return http.ListenAndServe(s.addr, mux)
 }
